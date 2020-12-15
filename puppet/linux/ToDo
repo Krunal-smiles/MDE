@@ -1,0 +1,67 @@
+#todo
+1. Software update
+    cron job - sudo yum update mdatp  
+2. MDATP fact
+    mdatp health --field org_id
+    mdatp health --field healthy
+    mdatp health --field definitions_status
+    mdatp health --field real_time_protection_enabled
+3. exclusions
+    mdatp exclusion
+    3.1 File extensions
+        mdatp exclusion extension add --name .txt
+    3.2 File
+        mdatp exclusion file add --path /var/log/dummy.log
+    3.3 Folder
+        mdatp exclusion folder add --path /var/log/
+    3.4 Process
+        mdatp exclusion process add --name cat
+4. threats
+    mdatp threat allowed add --name [threat-name]
+5. Proxy
+    5.1 install time
+        systemwide - /etc/environment - HTTPS_PROXY="http://proxy.server:port/"
+        systemwide - /etc/apt/apt.conf.d/proxy.conf - Acquire::https::Proxy "http://proxy.server:port/";
+        forcommand - HTTPS_PROXY="http://proxy.server:port/" apt install mdatp
+    5.2 post install
+        /lib/systemd/system/mdatp.service - Environment="HTTPS_PROXY=http://address:port
+        systemctl daemon-reload; systemctl restart mdatp
+6. configuration
+    /etc/opt/microsoft/mdatp/managed/ - mdatp_managed.json
+        antivirusEngine
+            enableRealTimeProtection - true/false
+            passiveMode - true/false
+            exclusionsMergePolicy - merge/admin_only
+            exclusions
+                excludedPath
+                    path - string
+                    isDirectory - true/false
+                excludedFileExtension
+                    extension - string
+                excludedFileName
+                    name - string
+            allowedThreats - array of strings
+            disallowedThreatActions - array of allow/restore
+            threatTypeSettings
+                key - potentially_unwanted_application/archive_bomb
+                value - audit/block/off
+            threatTypeSettingsMergePolicy - merge/admin_only
+            scanResultsRetentionDays - 1-180days
+            scanHistoryMaximumItems - 5000 - 15000
+            cloudService
+                enabled - true/false
+                diagnosticLevel - optional/required
+                automaticSampleSubmissionConsent - none/safe/all
+                automaticDefinitionUpdateEnabled - true/false
+    python -m json.tool mdatp_managed.json
+    6.1 reload configuration
+7. scheduled scan
+    cronjob - 0 2 * * sat /bin/mdatp scan quick > ~/mdatp_cron_job.log
+8. install checks
+    service - systemctl status mdatp
+    user - id "mdatp"
+9. connectivity check
+    mdatp connectivity test
+    curl -w ' %{url_effective}\n' 'https://x.cp.wd.microsoft.com/api/report' 'https://cdn.x.cp.wd.microsoft.com/ping'
+    curl -x http://proxy_address:port -w ' %{url_effective}\n' 'https://x.cp.wd.microsoft.com/api/report' 'https://cdn.x.cp.wd.microsoft.com/ping'
+    
