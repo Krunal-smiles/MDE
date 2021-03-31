@@ -33,6 +33,13 @@ class mdatp_linux::install {
     #before  => Service['mdatp']
   }
 
+  file { '/etc/opt/microsoft/mdatp/managed/mdatp_onboard.json':
+    source  => 'puppet://modules/mdatp_linux/mdatp_onboard.json',
+    owner   => root,
+    group   => root,
+    mode    => '0644',
+  }
+  
   #service { 'mdatp':
   #  ensure  => 'stopped',
   #  enable  => 'true',
